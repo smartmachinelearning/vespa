@@ -18,7 +18,9 @@ import com.yahoo.container.di.componentgraph.core.Node;
 import com.yahoo.container.di.config.RestApiContext;
 import com.yahoo.container.di.config.SubscriberFactory;
 import com.yahoo.vespa.config.ConfigKey;
+import org.osgi.framework.Bundle;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -46,6 +48,7 @@ public class Container {
     private ConfigRetriever configurer;
     private long previousConfigGeneration = -1L;
     private long leastGeneration = -1L;
+    private Set<Bundle> obsoleteBundles;
 
     public Container(SubscriberFactory subscriberFactory, String configId, ComponentDeconstructor componentDeconstructor, Osgi osgi) {
         this.subscriberFactory = subscriberFactory;
@@ -65,19 +68,22 @@ public class Container {
         });
     }
 
-    private void deconstructObsoleteComponents(ComponentGraph oldGraph, ComponentGraph newGraph) {
+    private void deconstructObsoleteComponents(ComponentGraph oldGraph,
+                                               ComponentGraph newGraph,
+                                               Collection<Bundle> obsoleteBundles) {
         IdentityHashMap<Object, Object> oldComponents = new IdentityHashMap<>();
         oldGraph.allConstructedComponentsAndProviders().forEach(c -> oldComponents.put(c, null));
         newGraph.allConstructedComponentsAndProviders().forEach(oldComponents::remove);
-        componentDeconstructor.deconstruct(oldComponents.keySet());
+        componentDeconstructor.deconstruct(oldComponents.keySet(), obsoleteBundles);
     }
 
     public ComponentGraph getNewComponentGraph(ComponentGraph oldGraph, Injector fallbackInjector, boolean restartOnRedeploy) {
         try {
+            obsoleteBundles = new HashSet<>();
             ComponentGraph newGraph = getConfigAndCreateGraph(oldGraph, fallbackInjector, restartOnRedeploy);
             newGraph.reuseNodes(oldGraph);
             constructComponents(newGraph);
-            deconstructObsoleteComponents(oldGraph, newGraph);
+            deconstructObsoleteComponents(oldGraph, newGraph, obsoleteBundles);
             return newGraph;
         } catch (Throwable t) {
             // TODO: Wrap ComponentConstructorException in an Error when generation==0 (+ unit test that Error is thrown)
@@ -124,6 +130,7 @@ public class Container {
 
     private ComponentGraph getConfigAndCreateGraph(ComponentGraph graph, Injector fallbackInjector, boolean restartOnRedeploy) {
         ConfigSnapshot snapshot;
+
         while (true) {
             snapshot = configurer.getConfigs(graph.configKeys(), leastGeneration, restartOnRedeploy);
 
@@ -131,7 +138,6 @@ public class Container {
                     graph.configKeys(), graph.generation(), snapshot));
 
             if (snapshot instanceof BootstrapConfigs) {
-                // TODO: remove require when proven unnecessary
                 if (getBootstrapGeneration() <= previousConfigGeneration) {
                     throw new IllegalStateException(String.format(
                             "Got bootstrap configs out of sequence for old config generation %d.\n" + "Previous config generation is %d",
@@ -142,8 +148,12 @@ public class Container {
                                 "Got new bootstrap generation\n" + "bootstrap generation = %d\n" + "components generation: %d\n"
                                         + "previous generation: %d\n",
                                 getBootstrapGeneration(), getComponentsGeneration(), previousConfigGeneration));
-                installBundles(snapshot.configs());
+
+
+                obsoleteBundles.addAll(installBundles(snapshot.configs()));
+
                 graph = createComponentsGraph(snapshot.configs(), getBootstrapGeneration(), fallbackInjector);
+
                 // Continues loop
 
             } else if (snapshot instanceof ConfigRetriever.ComponentsConfigs) {

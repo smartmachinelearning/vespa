@@ -8,6 +8,7 @@ import com.yahoo.jdisc.application.OsgiFramework;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -119,6 +120,11 @@ public class OsgiImpl implements Osgi {
         if (location.indexOf(':') < 0)
             location = "file:" + location;
         return location;
+    }
+
+    @Override
+    public void allowDuplicateBundles(Collection<Bundle> bundles) {
+        jdiscOsgi.allowDuplicateBundles(bundles);
     }
 
     @Override

@@ -160,6 +160,7 @@ public class BundleLoader {
     }
 
     public synchronized int use(List<FileReference> bundles) {
+        // GVL TODO: instead of retainOnly, add obsolete bundles to allowed duplicates
         int removedBundles = retainOnly(bundles);
         int installedBundles = install(bundles);
         startBundles();

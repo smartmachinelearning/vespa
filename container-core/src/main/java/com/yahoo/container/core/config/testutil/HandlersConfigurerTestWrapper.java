@@ -19,7 +19,6 @@ import com.yahoo.osgi.MockOsgi;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Set;

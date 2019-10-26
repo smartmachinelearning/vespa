@@ -4,6 +4,7 @@ package com.yahoo.osgi;
 import com.yahoo.component.ComponentSpecification;
 import org.osgi.framework.Bundle;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -16,6 +17,8 @@ public interface Osgi {
     Bundle getBundle(ComponentSpecification bundleId);
 
     List<Bundle> install(String absolutePath);
+
+    void allowDuplicateBundles(Collection<Bundle> bundles);
 
     void uninstall(Bundle bundle);
 
