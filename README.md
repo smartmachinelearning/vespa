@@ -2,6 +2,7 @@
 
 [![#Vespa](https://vespa.ai/img/VespaLogoBlack.png)](https://vespa.ai)
 
+
 The big data serving engine - Store, search, rank and organize big data at user serving time.
 Vespa is an engine for low-latency computation over large data sets.
 It stores and indexes your data and executes distributed queries including evaluation of
