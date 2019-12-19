@@ -173,6 +173,7 @@ void verifyBF(uint32_t qid) {
 
 TEST("require that brute force works") {
     TimePoint bef = std::chrono::steady_clock::now();
+    bruteforceResults.reserve(NUM_Q);
     for (uint32_t cnt = 0; cnt < NUM_Q; ++cnt) {
         const PointVector &query = generatedQueries[cnt];
         bruteforceResults.emplace_back(bruteforce_nns(query));
