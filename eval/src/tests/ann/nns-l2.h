@@ -11,7 +11,10 @@ struct L2DistCalc {
 
     using Arr = vespalib::ArrayRef<FltType>;
     using ConstArr = vespalib::ConstArrayRef<FltType>;
-    
+
+    double product(const FltType *v1, const FltType *v2, size_t sz) {
+        return _hw->dotProduct(v1, v2, sz);
+    }
     double product(ConstArr v1, ConstArr v2) {
         const FltType *p1 = v1.begin();
         const FltType *p2 = v2.begin();

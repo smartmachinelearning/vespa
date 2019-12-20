@@ -19,6 +19,7 @@
 #include "for-sift-top-k.h"
 
 std::vector<TopK> bruteforceResults;
+std::vector<float> tmp_v(NUM_DIMS);
 
 struct PointVector {
     float v[NUM_DIMS];
@@ -42,7 +43,7 @@ struct DocVectorAdapter : public DocVectorAccess<float>
 
 double computeDistance(const PointVector &query, uint32_t docid) {
     const PointVector &docvector = generatedDocs[docid];
-    return l2distCalc.l2sq_dist(query, docvector);
+    return l2distCalc.l2sq_dist(query, docvector, tmp_v);
 }
 
 void read_queries(std::string fn) {
@@ -137,7 +138,6 @@ public:
 TopK bruteforce_nns(const PointVector &query) {
     TopK result;
     BfHitHeap heap(result.K);
-    std::vector<float> tmp_v(NUM_DIMS);
     for (uint32_t docid = 0; docid < NUM_DOCS; ++docid) {
         const PointVector &docvector = generatedDocs[docid];
         double d = l2distCalc.l2sq_dist(query, docvector, tmp_v);
@@ -224,6 +224,7 @@ void verify_nns_quality(uint32_t sk, NNS_API &nns, uint32_t qid) {
     }
 }
 
+#if 0
 TEST("require that Locality Sensitive Hashing mostly works") {
     TimePoint bef = std::chrono::steady_clock::now();
     DocVectorAdapter adapter;
@@ -248,6 +249,7 @@ TEST("require that Locality Sensitive Hashing mostly works") {
         }
     }
 }
+#endif
 
 TEST("require that Indexing via NNS api mostly works") {
     fprintf(stderr, "trying indexing...\n");
