@@ -33,6 +33,7 @@ public class MetricsProxyContainer extends Container implements
         VespaServicesConfig.Producer
 {
 
+    // TODO: move to metrics-proxy!
     static final class NodeDimensionNames {
         static final String CLUSTER_TYPE = "clustertype";
         static final String CLUSTER_ID = "clusterid";

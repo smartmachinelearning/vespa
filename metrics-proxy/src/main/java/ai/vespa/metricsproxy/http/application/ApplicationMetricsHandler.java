@@ -69,8 +69,8 @@ public class ApplicationMetricsHandler extends HttpHandlerBase {
         }
     }
 
-    private Map<Node, List<MetricsPacket>> processAndBuild(Map<Node, List<MetricsPacket.Builder>> buildersByNode,
-                                                           MetricsProcessor... processors) {
+    private static Map<Node, List<MetricsPacket>> processAndBuild(Map<Node, List<MetricsPacket.Builder>> buildersByNode,
+                                                                  MetricsProcessor... processors) {
         var metricsByNode = new HashMap<Node, List<MetricsPacket>>();
 
         buildersByNode.forEach((node, builders) -> {
@@ -84,7 +84,9 @@ public class ApplicationMetricsHandler extends HttpHandlerBase {
         return metricsByNode;
     }
 
-    private MetricsPacket.Builder applyProcessors(MetricsPacket.Builder builder, MetricsProcessor... processors) {
+    // TODO: Move the below to separate classes in metric.model.process package
+
+    private static MetricsPacket.Builder applyProcessors(MetricsPacket.Builder builder, MetricsProcessor... processors) {
         Arrays.stream(processors).forEach(processor -> processor.process(builder));
         return builder;
     }
@@ -94,4 +96,15 @@ public class ApplicationMetricsHandler extends HttpHandlerBase {
         void process(MetricsPacket.Builder builder);
     }
 
+    static class DimensionsProcessor implements  MetricsProcessor {
+
+        public DimensionsProcessor() {
+        }
+
+        @Override
+        public void process(MetricsPacket.Builder builder) {
+
+        }
+
+    }
 }
