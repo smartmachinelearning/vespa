@@ -8,6 +8,7 @@ import ai.vespa.metricsproxy.http.HttpHandlerBase;
 import ai.vespa.metricsproxy.http.JsonResponse;
 import ai.vespa.metricsproxy.metric.model.ConsumerId;
 import ai.vespa.metricsproxy.metric.model.MetricsPacket;
+import ai.vespa.metricsproxy.metric.model.processing.MetricsProcessor;
 import com.google.inject.Inject;
 import com.yahoo.container.jdisc.HttpResponse;
 import com.yahoo.restapi.Path;
@@ -91,20 +92,4 @@ public class ApplicationMetricsHandler extends HttpHandlerBase {
         return builder;
     }
 
-    interface MetricsProcessor {
-        // Processes the metrics packet builder in-place.
-        void process(MetricsPacket.Builder builder);
-    }
-
-    static class DimensionsProcessor implements  MetricsProcessor {
-
-        public DimensionsProcessor() {
-        }
-
-        @Override
-        public void process(MetricsPacket.Builder builder) {
-
-        }
-
-    }
 }
