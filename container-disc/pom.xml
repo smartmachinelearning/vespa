@@ -213,7 +213,7 @@
                 jackson-jaxrs-json-provider-${jackson2.version}.jar,
                 jackson-module-jaxb-annotations-${jackson2.version}.jar,
                 javassist-${javassist.version}.jar,
-                javax.ws.rs-api-${javax.ws.rs-api.version}.jar,
+                jakarta.ws.rs-api-${jakarta.ws.rs-api.version}.jar,
                 jersey-client-${jersey2.version}.jar,
                 jersey-common-${jersey2.version}.jar,
                 jersey-container-servlet-${jersey2.version}.jar,

@@ -94,7 +94,7 @@
                                                 <include>javax.inject:javax.inject:[${javax.inject.version}]:jar:provided</include>
                                                 <include>javax.servlet:javax.servlet-api:[${javax.servlet-api.version}]:jar:provided</include>
                                                 <include>javax.validation:validation-api:[${javax.validation-api.version}]:jar:provided</include>
-                                                <include>javax.ws.rs:javax.ws.rs-api:[${javax.ws.rs-api.version}]:jar:provided</include>
+                                                <include>jakarta.ws.rs:jakarta.ws.rs-api:[${jakarta.ws.rs-api.version}]:jar:provided</include>
                                                 <include>javax.xml.bind:jaxb-api:[${jaxb.version}]:jar:provided</include>
                                                 <include>net.jcip:jcip-annotations:[1.0]:jar:provided</include>
                                                 <include>net.jpountz.lz4:lz4:[${lz4.version}]:jar:provided</include>
