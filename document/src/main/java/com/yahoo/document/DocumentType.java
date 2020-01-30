@@ -1,8 +1,6 @@
 // Copyright 2017 Yahoo Holdings. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
 package com.yahoo.document;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.yahoo.document.datatypes.FieldValue;
 import com.yahoo.document.serialization.DocumentWriter;
 import com.yahoo.vespa.objects.Ids;
@@ -13,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -202,7 +201,7 @@ public class DocumentType extends StructuredDataType {
                 }
             }
 
-            this.fieldSets.put(entry.getKey(), ImmutableSet.copyOf(fields));
+            this.fieldSets.put(entry.getKey(), Collections.unmodifiableSet(fields));
         }
         if ( ! this.fieldSets.containsKey(ALL)) {
             this.fieldSets.put(ALL, getAllUniqueFields());
@@ -308,7 +307,7 @@ public class DocumentType extends StructuredDataType {
         for (DocumentType type : inherits) {
             names.add(type.getDataTypeName());
         }
-        return ImmutableList.copyOf(names).listIterator();
+        return Collections.unmodifiableList(names).listIterator();
     }
 
     /**
@@ -413,7 +412,7 @@ public class DocumentType extends StructuredDataType {
 
         collection.addAll(headerType.getFields());
         collection.addAll(bodyType.getFields());
-        return ImmutableList.copyOf(collection);
+        return Collections.unmodifiableCollection(collection);
     }
 
     private Set<Field> getAllUniqueFields() {
@@ -421,7 +420,7 @@ public class DocumentType extends StructuredDataType {
         for (Field field : getFields()) { // Uniqify on field name
             map.put(field.getName(), field);
         }
-        return ImmutableSet.copyOf(map.values());
+        return Collections.unmodifiableSet(new HashSet<Field>(map.values()));
     }
 
     /**
