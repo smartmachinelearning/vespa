@@ -108,12 +108,10 @@ public:
      * @param attribute The attribute vector to use.
      */
     SingleAttributeExecutor(const T & attribute) : _attribute(attribute) { }
-    void handle_bind_outputs(vespalib::ArrayRef<fef::NumberOrObject> outputs_in) override {
-        fef::FeatureExecutor::handle_bind_outputs(outputs_in);
-        auto o = outputs().get_bound();
-        o[1].as_number = 0;  // weight
-        o[2].as_number = 0;  // contains
-        o[3].as_number = 1;  // count
+    void handle_bind_outputs() override {
+        outputs().set_number(1, 0); // weight
+        outputs().set_number(2, 0); // contains
+        outputs().set_number(3, 1); // count
     }
     void execute(uint32_t docId) override;
 };
@@ -129,12 +127,10 @@ private:
 public:
     MultiAttributeExecutor(const T & attribute, uint32_t idx) : _attribute(attribute), _idx(idx) { }
     void execute(uint32_t docId) override;
-    void handle_bind_outputs(vespalib::ArrayRef<fef::NumberOrObject> outputs_in) override {
-        fef::FeatureExecutor::handle_bind_outputs(outputs_in);
-        auto o = outputs().get_bound();
-        o[1].as_number = 0;  // weight
-        o[2].as_number = 0;  // contains
-        o[3].as_number = 0;  // count
+    void handle_bind_outputs() override {
+        outputs().set_number(1, 0); // weight
+        outputs().set_number(2, 0); // contains
+        outputs().set_number(3, 0); // count
     }
 };
 
@@ -145,12 +141,10 @@ private:
 public:
     CountOnlyAttributeExecutor(const attribute::IAttributeVector & attribute) : _attribute(attribute) { }
     void execute(uint32_t docId) override;
-    void handle_bind_outputs(vespalib::ArrayRef<fef::NumberOrObject> outputs_in) override {
-        fef::FeatureExecutor::handle_bind_outputs(outputs_in);
-        auto o = outputs().get_bound();
-        o[0].as_number = 0;  // value
-        o[1].as_number = 0;  // weight
-        o[2].as_number = 0;  // contains
+    void handle_bind_outputs() override {
+        outputs().set_number(0, 0); // value
+        outputs().set_number(1, 0); // weight
+        outputs().set_number(2, 0); // contains
     }
 };
 /**
@@ -174,12 +168,10 @@ public:
      */
     AttributeExecutor(const attribute::IAttributeVector * attribute, uint32_t idx);
     void execute(uint32_t docId) override;
-    void handle_bind_outputs(vespalib::ArrayRef<fef::NumberOrObject> outputs_in) override {
-        fef::FeatureExecutor::handle_bind_outputs(outputs_in);
-        auto o = outputs().get_bound();
-        o[1].as_number = 0;  // weight
-        o[2].as_number = 0;  // contains
-        o[3].as_number = _defaultCount; // count
+    void handle_bind_outputs() override {
+        outputs().set_number(1, 0); // weight
+        outputs().set_number(2, 0); // contains
+        outputs().set_number(3, _defaultCount); // count
     }
 };
 
@@ -214,10 +206,9 @@ SingleAttributeExecutor<T>::execute(uint32_t docId)
 {
     typename T::LoadedValueType v = _attribute.getFast(docId);
     // value
-    auto o = outputs().get_bound();
-    o[0].as_number = __builtin_expect(attribute::isUndefined(v), false)
-                     ? attribute::getUndefined<feature_t>()
-                     : util::getAsFeature(v);
+    outputs().set_number(0, __builtin_expect(attribute::isUndefined(v), false)
+                         ? attribute::getUndefined<feature_t>()
+                         : util::getAsFeature(v));
 }
 
 template <typename T>
@@ -226,16 +217,13 @@ MultiAttributeExecutor<T>::execute(uint32_t docId)
 {
     const multivalue::Value<typename T::BaseType> * values = nullptr;
     uint32_t numValues = _attribute.getRawValues(docId, values);
-
-    auto o = outputs().get_bound();
-    o[0].as_number = __builtin_expect(_idx < numValues, true) ? values[_idx].value() : 0;
+    outputs().set_number(0, __builtin_expect(_idx < numValues, true) ? values[_idx].value() : 0);
 }
 
 void
 CountOnlyAttributeExecutor::execute(uint32_t docId)
 {
-    auto o = outputs().get_bound();
-    o[3].as_number = _attribute.getValueCount(docId); // count
+    outputs().set_number(3, _attribute.getValueCount(docId)); // count
 }
 
 template <typename T>
@@ -259,8 +247,7 @@ AttributeExecutor<T>::execute(uint32_t docId)
     if (_idx < _buffer.size()) {
         value = considerUndefined(_buffer[_idx], _attrType);
     }
-    auto o = outputs().get_bound();
-    o[0].as_number = value;  // value
+    outputs().set_number(0, value); // value
 }
 
 

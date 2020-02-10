@@ -11,9 +11,9 @@ namespace search {
 namespace features {
 
 void
-FirstPhaseExecutor::execute(uint32_t)
+FirstPhaseExecutor::execute(uint32_t docid)
 {
-    outputs().set_number(0, inputs().get_number(0));
+    outputs().set_number(0, inputs().get_number(docid, 0));
 }
 
 

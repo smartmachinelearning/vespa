@@ -57,8 +57,8 @@ struct BoxingExecutor : FeatureExecutor {
     DoubleValue value;
     BoxingExecutor() : value(0.0) {}
     bool isPure() override { return true; }
-    void execute(uint32_t) override {
-        value = DoubleValue(inputs().get_number(0));
+    void execute(uint32_t docid) override {
+        value = DoubleValue(inputs().get_number(docid, 0));
         outputs().set_object(0, value);
     }
 };
@@ -84,9 +84,9 @@ struct TrackingExecutor : FeatureExecutor {
     size_t &ext_cnt;
     TrackingExecutor(size_t &ext_cnt_in) : ext_cnt(ext_cnt_in) {}
     bool isPure() override { return true; }
-    void execute(uint32_t) override {
+    void execute(uint32_t docid) override {
         ++ext_cnt;
-        outputs().set_number(0, inputs().get_number(0));
+        outputs().set_number(0, inputs().get_number(docid, 0));
     }
 };
 

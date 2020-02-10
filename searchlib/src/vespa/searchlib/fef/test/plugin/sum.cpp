@@ -8,11 +8,11 @@ namespace fef {
 namespace test {
 
 void
-SumExecutor::execute(uint32_t)
+SumExecutor::execute(uint32_t docid)
 {
     feature_t sum = 0.0f;
     for (uint32_t i = 0; i < inputs().size(); ++i) {
-        sum += inputs().get_number(i);
+        sum += inputs().get_number(docid, i);
     }
     outputs().set_number(0, sum);
 }

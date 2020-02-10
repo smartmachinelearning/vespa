@@ -8,8 +8,8 @@ namespace {
 
 struct UnboxExecutor : FeatureExecutor {
     bool isPure() override { return true; }
-    void execute(uint32_t) override {
-        outputs().set_number(0, inputs().get_object(0).get().as_double());
+    void execute(uint32_t docid) override {
+        outputs().set_number(0, inputs().get_object(docid, 0).get().as_double());
     }
 };
 

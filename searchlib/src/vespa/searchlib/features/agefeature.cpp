@@ -34,7 +34,7 @@ AgeExecutor::execute(uint32_t docId)
     if (_attribute != NULL) {
         _buf.fill(*_attribute, docId);
         int64_t docTime = _buf[0];
-        feature_t currTime = inputs().get_number(0);
+        feature_t currTime = inputs().get_number(docId, 0);
         age = currTime - docTime;
         if (age < 0) {
             age = 0;

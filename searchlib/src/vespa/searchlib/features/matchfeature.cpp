@@ -21,13 +21,13 @@ MatchExecutor::MatchExecutor(const MatchParams & params) :
 }
 
 void
-MatchExecutor::execute(uint32_t)
+MatchExecutor::execute(uint32_t docid)
 {
     feature_t sum = 0.0f;
     feature_t totalWeight = 0.0f;
     for (uint32_t i = 0; i < _params.weights.size(); ++i) {
         feature_t weight = static_cast<feature_t>(_params.weights[i]);
-        feature_t matchScore = inputs().get_number(i);
+        feature_t matchScore = inputs().get_number(docid, i);
         if (matchScore > 0.0f) {
             totalWeight += weight;
             sum += (weight * matchScore);

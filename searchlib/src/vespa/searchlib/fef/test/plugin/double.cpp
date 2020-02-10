@@ -8,12 +8,12 @@
 namespace search::fef::test {
 
 void
-DoubleExecutor::execute(uint32_t)
+DoubleExecutor::execute(uint32_t docid)
 {
     assert(inputs().size() == _cnt);
     assert(outputs().size() == _cnt);
     for (uint32_t i = 0; i < _cnt; ++i) {
-        outputs().set_number(i, inputs().get_number(i) * 2);
+        outputs().set_number(i, inputs().get_number(docid, i) * 2);
     }
 }
 

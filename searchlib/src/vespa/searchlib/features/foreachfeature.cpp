@@ -26,11 +26,11 @@ ForeachExecutor<CO, OP>::ForeachExecutor(const CO & condition, uint32_t numInput
 
 template <typename CO, typename OP>
 void
-ForeachExecutor<CO, OP>::execute(uint32_t)
+ForeachExecutor<CO, OP>::execute(uint32_t docid)
 {
     _operation.reset();
     for (uint32_t i = 0; i < inputs().size(); ++i) {
-        feature_t val = inputs().get_number(i);
+        feature_t val = inputs().get_number(docid, i);
         if (_condition.useValue(val)) {
             _operation.onValue(val);
         }

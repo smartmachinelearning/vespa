@@ -97,15 +97,15 @@ public:
 //-----------------------------------------------------------------------------
 
 struct MyLazyParams : LazyParams {
-    const fef::FeatureExecutor::Inputs &inputs;
+    const fef::FeatureExecutor &executor;
     const ConstArrayRef<char> input_is_object;
-    MyLazyParams(const fef::FeatureExecutor::Inputs &inputs_in, ConstArrayRef<char> input_is_object_in)
-        : inputs(inputs_in), input_is_object(input_is_object_in) {}
+    MyLazyParams(const fef::FeatureExecutor &executor_in, ConstArrayRef<char> input_is_object_in)
+        : executor(executor_in), input_is_object(input_is_object_in) {}
     const Value &resolve(size_t idx, vespalib::Stash &stash) const override {
         if (input_is_object[idx]) {
-            return inputs.get_object(idx);
+            return executor.inputs().get_object(executor.outputs().get_docid(), idx);
         } else {
-            return stash.create<DoubleValue>(inputs.get_number(idx));
+            return stash.create<DoubleValue>(executor.inputs().get_number(executor.outputs().get_docid(), idx));
         }
     }
 };
@@ -137,17 +137,17 @@ FastForestExecutor::FastForestExecutor(ArrayRef<float> param_space, const FastFo
 }
 
 void
-FastForestExecutor::execute(uint32_t)
+FastForestExecutor::execute(uint32_t docid)
 {
     size_t i = 0;
     for (; (i + 3) < _params.size(); i += 4) {
-        _params[i+0] = inputs().get_number(i+0);
-        _params[i+1] = inputs().get_number(i+1);
-        _params[i+2] = inputs().get_number(i+2);
-        _params[i+3] = inputs().get_number(i+3);
+        _params[i+0] = inputs().get_number(docid, i+0);
+        _params[i+1] = inputs().get_number(docid, i+1);
+        _params[i+2] = inputs().get_number(docid, i+2);
+        _params[i+3] = inputs().get_number(docid, i+3);
     }
     for (; i < _params.size(); ++i) {
-        _params[i] = inputs().get_number(i);
+        _params[i] = inputs().get_number(docid, i);
     }
     outputs().set_number(0, _forest.eval(*_ctx, &_params[0]));
 }
@@ -161,17 +161,17 @@ CompiledRankingExpressionExecutor::CompiledRankingExpressionExecutor(const Compi
 }
 
 void
-CompiledRankingExpressionExecutor::execute(uint32_t)
+CompiledRankingExpressionExecutor::execute(uint32_t docid)
 {
     size_t i(0);
     for (; (i + 4) < _params.size(); i += 4) {
-        _params[i+0] = inputs().get_number(i+0);
-        _params[i+1] = inputs().get_number(i+1);
-        _params[i+2] = inputs().get_number(i+2);
-        _params[i+3] = inputs().get_number(i+3);
+        _params[i+0] = inputs().get_number(docid, i+0);
+        _params[i+1] = inputs().get_number(docid, i+1);
+        _params[i+2] = inputs().get_number(docid, i+2);
+        _params[i+3] = inputs().get_number(docid, i+3);
     }
     for (; i < _params.size(); ++i) {
-        _params[i] = inputs().get_number(i);
+        _params[i] = inputs().get_number(docid, i);
     }
     outputs().set_number(0, _ranking_function(&_params[0]));
 }
@@ -180,9 +180,12 @@ CompiledRankingExpressionExecutor::execute(uint32_t)
 
 namespace {
 
-using Context = fef::FeatureExecutor::Inputs;
-double resolve_input(void *ctx, size_t idx) { return ((const Context *)(ctx))->get_number(idx); }
-Context *make_ctx(const Context &inputs) { return const_cast<Context *>(&inputs); }
+using Context = fef::FeatureExecutor;
+double resolve_input(void *ctx, size_t idx) {
+    const Context *ptr = (const Context *)(ctx);
+    return ptr->inputs().get_number(ptr->outputs().get_docid(), idx);
+}
+Context *make_ctx(const Context &executor) { return const_cast<Context *>(&executor); }
 
 }
 
@@ -194,7 +197,7 @@ LazyCompiledRankingExpressionExecutor::LazyCompiledRankingExpressionExecutor(con
 void
 LazyCompiledRankingExpressionExecutor::execute(uint32_t)
 {
-    outputs().set_number(0, _ranking_function(resolve_input, make_ctx(inputs())));
+    outputs().set_number(0, _ranking_function(resolve_input, make_ctx(*this)));
 }
 
 //-----------------------------------------------------------------------------
@@ -203,7 +206,7 @@ InterpretedRankingExpressionExecutor::InterpretedRankingExpressionExecutor(const
                                                                            ConstArrayRef<char> input_is_object)
     : _function(function),
       _context(function),
-      _params(inputs(), input_is_object)
+      _params(*this, input_is_object)
 {
 }
 

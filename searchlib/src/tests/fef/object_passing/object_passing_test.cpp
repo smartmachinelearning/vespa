@@ -27,14 +27,14 @@ struct ProxyExecutor : FeatureExecutor {
         : input_is_object(input_is_object_in), output_is_object(output_is_object_in),
           number_value(0.0), object_value() {}
     bool isPure() override { return true; }
-    void execute(uint32_t) override {
+    void execute(uint32_t docid) override {
         double was_object = 0.0;
         if (input_is_object) {
             was_object = 1.0;
-            number_value = inputs().get_object(0).get().as_double();
+            number_value = inputs().get_object(docid, 0).get().as_double();
             object_value.reset(new vespalib::eval::DoubleValue(number_value));
         } else {
-            number_value = inputs().get_number(0);
+            number_value = inputs().get_number(docid, 0);
             object_value.reset(new vespalib::eval::DoubleValue(number_value));
         }
         if (output_is_object) {

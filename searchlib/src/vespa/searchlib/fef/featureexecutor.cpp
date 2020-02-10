@@ -21,12 +21,12 @@ FeatureExecutor::isPure()
 }
 
 void
-FeatureExecutor::handle_bind_inputs(vespalib::ConstArrayRef<LazyValue>)
+FeatureExecutor::handle_bind_inputs()
 {
 }
 
 void
-FeatureExecutor::handle_bind_outputs(vespalib::ArrayRef<NumberOrObject>)
+FeatureExecutor::handle_bind_outputs()
 {
 }
 
@@ -39,14 +39,29 @@ void
 FeatureExecutor::bind_inputs(vespalib::ConstArrayRef<LazyValue> inputs)
 {
     _inputs.bind(inputs);
-    handle_bind_inputs(inputs);
+    handle_bind_inputs();
 }
 
 void
 FeatureExecutor::bind_outputs(vespalib::ArrayRef<NumberOrObject> outputs)
 {
     _outputs.bind(outputs);
-    handle_bind_outputs(outputs);
+    _outputs.set_docid(-1);
+    handle_bind_outputs();
+}
+
+void
+FeatureExecutor::copy_inputs(const FeatureExecutor::Inputs &inputs)
+{
+    _inputs = inputs;
+    handle_bind_inputs();
+}
+
+void
+FeatureExecutor::copy_outputs(const FeatureExecutor::Outputs &outputs)
+{
+    _outputs = outputs;
+    handle_bind_outputs();
 }
 
 void

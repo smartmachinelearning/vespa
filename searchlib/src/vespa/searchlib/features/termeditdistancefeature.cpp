@@ -71,7 +71,7 @@ TermEditDistanceExecutor::execute(uint32_t docId)
     uint32_t numQueryTerms = _fieldHandles.size();
     uint32_t fieldBegin    = _config.fieldBegin;
     uint32_t fieldEnd      = std::min(_config.fieldEnd,
-                                      (uint32_t)inputs().get_number(0));
+                                      (uint32_t)inputs().get_number(docId, 0));
 
     // _P_A_R_A_N_O_I_A_
     TedCell last;

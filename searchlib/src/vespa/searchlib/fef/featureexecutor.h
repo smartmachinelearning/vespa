@@ -6,6 +6,7 @@
 #include "matchdata.h"
 #include "number_or_object.h"
 #include <vespa/vespalib/util/arrayref.h>
+#include <cassert>
 
 namespace search::fef {
 
@@ -45,15 +46,12 @@ class FeatureExecutor
 {
 public:
     class Inputs {
-        uint32_t _docid;
         vespalib::ConstArrayRef<LazyValue> _inputs;
     public:
-        Inputs() : _docid(-1), _inputs() {}
-        void set_docid(uint32_t docid) { _docid = docid; }
-        uint32_t get_docid() const { return _docid; }
+        Inputs() : _inputs() {}
         void bind(vespalib::ConstArrayRef<LazyValue> inputs) { _inputs = inputs; }
-        inline feature_t get_number(size_t idx) const;
-        inline vespalib::eval::Value::CREF get_object(size_t idx) const;
+        inline feature_t get_number(uint32_t docid, size_t idx) const;
+        inline vespalib::eval::Value::CREF get_object(uint32_t docid, size_t idx) const;
         size_t size() const { return _inputs.size(); }
     };
 
@@ -83,10 +81,9 @@ public:
         const NumberOrObject *get_raw(size_t idx) const {
             return &_outputs[idx];
         }
-        OutputArray get_bound() const {
-            return _outputs;
-        }
-        size_t size() const { return _outputs.size(); }
+        size_t size() const { return (_outputs.size() - 1); }
+        void set_docid(uint32_t docid) { _outputs[size()].as_docid = docid; }
+        uint32_t get_docid() const { return _outputs[size()].as_docid; }
     private:
         vespalib::ArrayRef<NumberOrObject> _outputs;
     };
@@ -99,8 +96,8 @@ private:
     Outputs _outputs;
 
 protected:
-    virtual void handle_bind_inputs(vespalib::ConstArrayRef<LazyValue> inputs);
-    virtual void handle_bind_outputs(vespalib::ArrayRef<NumberOrObject> outputs);
+    virtual void handle_bind_inputs();
+    virtual void handle_bind_outputs();
     virtual void handle_bind_match_data(const MatchData &md);
 
     /**
@@ -109,6 +106,9 @@ protected:
      * @param docid the local document id being evaluated
      **/
     virtual void execute(uint32_t docId) = 0;
+    void forward_execution(uint32_t docid, FeatureExecutor &target) {
+        target.execute(docid);
+    }
 
 public:
     /**
@@ -127,6 +127,8 @@ public:
     // bind order per executor: inputs, outputs, match_data
     void bind_inputs(vespalib::ConstArrayRef<LazyValue> inputs);
     void bind_outputs(vespalib::ArrayRef<NumberOrObject> outputs);
+    void copy_inputs(const FeatureExecutor::Inputs &inputs);
+    void copy_outputs(const FeatureExecutor::Outputs &outputs);
     void bind_match_data(const MatchData &md);
 
     const Inputs &inputs() const { return _inputs; }
@@ -157,8 +159,8 @@ public:
      * @param docid the local document id being evaluated
      **/
     void lazy_execute(uint32_t docid) {
-        if (_inputs.get_docid() != docid) {
-            _inputs.set_docid(docid);
+        if (_outputs.get_docid() != docid) {
+            _outputs.set_docid(docid);
             execute(docid);
         }
     }
@@ -183,12 +185,12 @@ vespalib::eval::Value::CREF LazyValue::as_object(uint32_t docid) const {
     return _value->as_object;
 }
 
-feature_t FeatureExecutor::Inputs::get_number(size_t idx) const {
-    return _inputs[idx].as_number(_docid);
+feature_t FeatureExecutor::Inputs::get_number(uint32_t docid, size_t idx) const {
+    return _inputs[idx].as_number(docid);
 }
 
-vespalib::eval::Value::CREF FeatureExecutor::Inputs::get_object(size_t idx) const {
-    return _inputs[idx].as_object(_docid);
+vespalib::eval::Value::CREF FeatureExecutor::Inputs::get_object(uint32_t docid, size_t idx) const {
+    return _inputs[idx].as_object(docid);
 }
 
 }

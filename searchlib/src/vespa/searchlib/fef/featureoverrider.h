@@ -25,8 +25,8 @@ private:
     feature_t           _value;
 
     virtual void handle_bind_match_data(const MatchData &md) override;
-    virtual void handle_bind_inputs(vespalib::ConstArrayRef<LazyValue> inputs) override;
-    virtual void handle_bind_outputs(vespalib::ArrayRef<NumberOrObject> outputs) override;
+    virtual void handle_bind_inputs() override;
+    virtual void handle_bind_outputs() override;
 
 public:
     /**

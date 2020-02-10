@@ -20,9 +20,9 @@ FreshnessExecutor::FreshnessExecutor(feature_t maxAge, feature_t scaleAge) :
 }
 
 void
-FreshnessExecutor::execute(uint32_t)
+FreshnessExecutor::execute(uint32_t docid)
 {
-    feature_t age = inputs().get_number(0);
+    feature_t age = inputs().get_number(docid, 0);
     LOG(debug, "Age: %f  Maxage: %f res: %f\n", age, _maxAge, (age / _maxAge));
     feature_t freshness = std::max(1 - (age / _maxAge), (feature_t)0);
     outputs().set_number(0, freshness);

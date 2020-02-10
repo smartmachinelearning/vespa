@@ -68,11 +68,11 @@ NativeRankExecutor::NativeRankExecutor(const NativeRankParams & params) :
 }
 
 void
-NativeRankExecutor::execute(uint32_t)
+NativeRankExecutor::execute(uint32_t docid)
 {
-    outputs().set_number(0, (inputs().get_number(0) * _params.fieldMatchWeight
-                             + inputs().get_number(1) * _params.proximityWeight
-                             + inputs().get_number(2) * _params.attributeMatchWeight) / _divisor);
+    outputs().set_number(0, (inputs().get_number(docid, 0) * _params.fieldMatchWeight
+                             + inputs().get_number(docid, 1) * _params.proximityWeight
+                             + inputs().get_number(docid, 2) * _params.attributeMatchWeight) / _divisor);
 }
 
 

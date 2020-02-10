@@ -34,6 +34,7 @@ private:
     using ValueSet = std::set<const NumberOrObject *>;
 
     BlueprintResolver::SP            _resolver;
+    vespalib::Stash                  _dirty_stash;
     vespalib::Stash                  _hot_stash;
     vespalib::Stash                  _cold_stash;
     std::vector<FeatureExecutor *>   _executors;

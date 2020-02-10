@@ -16,7 +16,8 @@ namespace search::fef {
 union NumberOrObject {
     feature_t                   as_number;
     vespalib::eval::Value::CREF as_object;
-    char                        as_bytes[std::max(sizeof(as_number), sizeof(as_object))];
+    uint32_t                    as_docid;
+    char                        as_bytes[std::max(sizeof(as_number), std::max(sizeof(as_object), sizeof(as_docid)))];
     NumberOrObject() { memset(as_bytes, 0, sizeof(as_bytes)); }
     ~NumberOrObject() {}
 };

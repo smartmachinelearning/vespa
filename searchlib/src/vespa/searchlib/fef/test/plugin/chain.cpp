@@ -13,9 +13,9 @@ ChainExecutor::ChainExecutor() :
 }
 
 void
-ChainExecutor::execute(uint32_t)
+ChainExecutor::execute(uint32_t docid)
 {
-    outputs().set_number(0, inputs().get_number(0));
+    outputs().set_number(0, inputs().get_number(docid, 0));
 }
 
 

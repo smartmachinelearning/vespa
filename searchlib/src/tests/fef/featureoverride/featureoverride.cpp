@@ -15,7 +15,10 @@ using namespace search::fef::test;
 using namespace search::features;
 using search::feature_t;
 
-typedef Blueprint::SP       BPSP;
+using BPSP = Blueprint::SP;
+
+// allocate an extra output to store the current docid
+size_t adjust_outputs(size_t cnt) { return (cnt + 1); }
 
 struct Fixture
 {
@@ -25,7 +28,7 @@ struct Fixture
     MatchData::UP md;
     Fixture() : mdl(), stash(), executors(), md() {}
     Fixture &add(FeatureExecutor *executor, size_t outCnt) {
-        executor->bind_outputs(stash.create_array<NumberOrObject>(outCnt));
+        executor->bind_outputs(stash.create_array<NumberOrObject>(adjust_outputs(outCnt)));
         executors.push_back(executor);
         return *this;
     }

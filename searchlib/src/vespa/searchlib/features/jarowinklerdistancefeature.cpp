@@ -55,7 +55,7 @@ JaroWinklerDistanceExecutor::execute(uint32_t docId)
     }
 
     // Assign the jaroWinkler distance to this executor's output.
-    outputs().set_number(0, 1 - jaroWinklerProximity(pos, (uint32_t)inputs().get_number(0)));
+    outputs().set_number(0, 1 - jaroWinklerProximity(pos, (uint32_t)inputs().get_number(docId, 0)));
 }
 
 void

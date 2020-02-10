@@ -20,9 +20,9 @@ ClosenessExecutor::ClosenessExecutor(feature_t maxDistance, feature_t scaleDista
 }
 
 void
-ClosenessExecutor::execute(uint32_t)
+ClosenessExecutor::execute(uint32_t docid)
 {
-    feature_t distance = inputs().get_number(0);
+    feature_t distance = inputs().get_number(docid, 0);
     feature_t closeness = std::max(1 - (distance / _maxDistance), (feature_t)0);
     outputs().set_number(0, closeness);
     outputs().set_number(1, _logCalc.get(distance));
